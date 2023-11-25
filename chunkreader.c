@@ -3,6 +3,8 @@
 #include <time.h>
 #include <math.h>
 #include <omp.h>
+#include <string.h>
+
 #define FILE_SIZE_GB 1
 #define BUFFER_SIZE 1024
 
@@ -39,9 +41,9 @@ void create_new_random_file(){
     printf("File created successfully for %dGB.\n",FILE_SIZE_GB);
 
 }
-int read_chunk(int process_no,Range range){
+int read_chunk(int process_no,Range range,char* main_data){
     FILE *file;
-    char *buffer = (char *) malloc(range.chunk_size*sizeof(char));
+    char *buffer = (char *) malloc(range.chunk_size);
     size_t bytesRead;
 
     // Open the file
@@ -57,6 +59,7 @@ int read_chunk(int process_no,Range range){
 
     bytesRead = fread(buffer, 1, range.chunk_size, file);
     // fwrite(buffer, 1, bytesRead, stdout);
+    memcpy(main_data+range.start,buffer,range.chunk_size);
     return bytesRead;
 }
 long get_file_size(FILE *file){
@@ -96,7 +99,6 @@ int main(){
     FILE *file;
     char buffer[1024];
     size_t bytesRead;
-
     // Open the file
     file = fopen("random_file.txt", "r");
     if (file == NULL) {
@@ -105,14 +107,18 @@ int main(){
     }
     long file_size = get_file_size(file);
     printf("File size is %ld\n",file_size);
+    char *main_data = (char *) malloc(file_size);
+
     long total = 0;
     #pragma omp parallel num_threads(5)
     {
         Range rnge = divide_chunk(file_size,omp_get_thread_num());
-        long read_len = read_chunk(omp_get_thread_num(),rnge);
+        long read_len = read_chunk(omp_get_thread_num(),rnge,main_data);
         printf("%ld --read\n",read_len);
         total+=read_len;
     }
     printf("Total Read - %ld",total);
+    FILE* outfile = fopen("output.txt","wb");
+    fwrite(main_data, sizeof(char), (total)-1, outfile);
     return 0;
 }
