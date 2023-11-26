@@ -7,7 +7,7 @@
 #define BUFFER_SIZE 1024
 #define FILENAME "random_file.txt"
 
-void create_new_random_file(int file_size_gb){
+void create_new_random_file(double file_size_gb){
     FILE *file;
     char buffer[BUFFER_SIZE];
     srand(time(NULL));
@@ -29,7 +29,7 @@ void create_new_random_file(int file_size_gb){
 
     fclose(file);
 
-    printf("File created successfully for %dGB.\n", file_size_gb);
+    printf("File created successfully for %fGB.\n", file_size_gb);
 
 }
 
