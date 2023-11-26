@@ -7,8 +7,7 @@
 
 #define FILE_SIZE_GB 1
 #define BUFFER_SIZE 1024
-
-#define CHUNK_SIZE
+#define CHUNK_SIZE 1024
 
 typedef struct{
     long start;
@@ -41,27 +40,16 @@ void create_new_random_file(){
     printf("File created successfully for %dGB.\n",FILE_SIZE_GB);
 
 }
-int read_chunk(int process_no,Range range,char* main_data){
-    FILE *file;
-    char *buffer = (char *) malloc(range.chunk_size);
+
+int read_chunk_small(long chunk_number,char* main_data,FILE* file){
+    // char *buffer = (char *) malloc(CHUNK_SIZE);
     size_t bytesRead;
-
-    // Open the file
-    file = fopen("random_file.txt", "r");
-    if (file == NULL) {
-        perror("Error opening file");
-        return EXIT_FAILURE;
-    }
-
-    //Seek to start of chunk
-    fseek(file,range.start,SEEK_SET);
-
-
-    bytesRead = fread(buffer, 1, range.chunk_size, file);
-    // fwrite(buffer, 1, bytesRead, stdout);
-    memcpy(main_data+range.start,buffer,range.chunk_size);
+    fseek(file,chunk_number*CHUNK_SIZE,SEEK_SET);
+    bytesRead = fread(main_data+(chunk_number*CHUNK_SIZE), 1, CHUNK_SIZE, file);
+    // memcpy(main_data+(chunk_number*CHUNK_SIZE),buffer,CHUNK_SIZE);
     return bytesRead;
 }
+
 long get_file_size(FILE *file){
     long size;
 
@@ -79,21 +67,11 @@ long get_file_size(FILE *file){
     return size;
 
 }
-
-Range divide_chunk(long file_size,int thread_num){
-    long chunk_size = (long)floor(file_size/omp_get_num_threads());
-    Range result;
-    result.start = chunk_size*(thread_num);
-    if(thread_num==omp_get_num_threads()-1){
-        result.end = file_size;
-    }
-    else{
-        result.end = chunk_size*(thread_num+1) -1;
-    }
-    result.chunk_size = result.end - result.start + 1;
-
-    return result;
+long get_num_chunks(long file_size){
+    return ceil(file_size/CHUNK_SIZE);
 }
+
+
 int main(){
     // create_new_random_file();
     FILE *file;
@@ -108,17 +86,26 @@ int main(){
     long file_size = get_file_size(file);
     printf("File size is %ld\n",file_size);
     char *main_data = (char *) malloc(file_size);
+    long num_chunks = get_num_chunks(file_size);
 
     long total = 0;
-    #pragma omp parallel num_threads(5)
-    {
-        Range rnge = divide_chunk(file_size,omp_get_thread_num());
-        long read_len = read_chunk(omp_get_thread_num(),rnge,main_data);
-        printf("%ld --read\n",read_len);
-        total+=read_len;
+    FILE *filePointers[8];
+    for(int i =0;i<8;i++){
+        filePointers[i]=fopen("random_file.txt", "r");
     }
+    #pragma omp parallel for num_threads(8)
+    for(long i=0;i<num_chunks;i++){
+        long read_len = read_chunk_small(i,main_data,filePointers[omp_get_thread_num()]);
+        #pragma omp critical
+        {
+            total+=read_len;
+        }
+    }
+
     printf("Total Read - %ld",total);
     FILE* outfile = fopen("output.txt","wb");
-    fwrite(main_data, sizeof(char), (total)-1, outfile);
+
+    fwrite(main_data, sizeof(char), (total)-1, stdout);
+
     return 0;
 }
