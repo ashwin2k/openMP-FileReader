@@ -70,6 +70,66 @@ long get_num_chunks(long file_size){
     return ceil(file_size/CHUNK_SIZE);
 }
 
+int isNumberPresent(long arr[], int size, long target) {
+    for (int i = 0; i < size; i++) {
+        if (arr[i] == target) {
+            return i;  // Number is present
+        }
+    }
+    return -1;  // Number is not present
+}
+
+double findMax(double arr[], int size) {
+    if (size <= 0) {
+        // Handle empty array or invalid size
+        printf("Invalid array size.\n");
+        return -1;  // Returning a special value to indicate an error
+    }
+
+    double max = arr[0];  // Assume the first element is the maximum
+
+    for (int i = 1; i < size; i++) {
+        if (arr[i] > max) {
+            max = arr[i];  // Update the maximum if a larger element is found
+        }
+    }
+
+    return max;
+}
+
+double findMin(double arr[], int size) {
+    if (size <= 0) {
+        // Handle empty array or invalid size
+        printf("Invalid array size.\n");
+        return -1;  // Returning a special value to indicate an error
+    }
+
+    double min = arr[0];  // Assume the first element is the minimum
+
+    for (int i = 1; i < size; i++) {
+        if (arr[i] < min) {
+            min = arr[i];  // Update the minimum if a smaller element is found
+        }
+    }
+
+    return min;
+}
+
+double findAverage(double arr[], int size) {
+    if (size <= 0) {
+        // Handle empty array or invalid size
+        printf("Invalid array size.\n");
+        return -1.0;  // Returning a special value to indicate an error
+    }
+
+    double sum = 0;
+
+    for (int i = 0; i < size; i++) {
+        sum += arr[i];  // Sum up all the elements in the array
+    }
+
+    return (double)sum / size;  // Calculate the average
+}
 
 int main(){
     srand((unsigned int)10);
@@ -84,9 +144,19 @@ int main(){
         return EXIT_FAILURE;
     }
     long file_size = get_file_size(file);
-    printf("File size is %ld\n",file_size);
-    char *main_data = (char *) malloc(file_size);
     long num_chunks = get_num_chunks(file_size);
+    
+    long rand_chunks[10];
+    double rand_chunks_time[10];
+
+
+    for(int x=0;x<10;x++){
+        rand_chunks[x] =(long) rand() % num_chunks + 1;
+    }
+    
+    printf("File size is %ld\n",file_size);
+
+    char *main_data = (char *) malloc(file_size);
 
     long total = 0;
     
@@ -94,15 +164,33 @@ int main(){
     for(int i =0;i<NUM_THREADS;i++){
         filePointers[i]=fopen("random_file.txt", "r");
     }
+
+    double start = omp_get_wtime();
     #pragma omp parallel for reduction(+:total) num_threads(NUM_THREADS)
     for(long i=0;i<num_chunks;i++){
-        long read_len = read_chunk_small(i,main_data,filePointers[omp_get_thread_num()]);
 
+        long read_len = read_chunk_small(i,main_data,filePointers[omp_get_thread_num()]);
+        int idx = isNumberPresent(rand_chunks, sizeof(rand_chunks) / sizeof(rand_chunks[0]), i);
+        if(idx!=-1){
+            rand_chunks_time[idx] = omp_get_wtime() - start;
+        }
         total+=read_len;
         
     }
 
-    printf("Total Read - %ld",total);
+    int size = sizeof(rand_chunks_time) / sizeof(rand_chunks_time[0]);
+    printf("Total Read - %ld\n",total);
+
+    printf("Rand Chunks selected: ");
+    for (int i = 0; i < size; i++) {
+        printf("%ld ", rand_chunks[i]);
+    }
+    printf("\n");
+
+    printf("STATS: Average Response Time:%f\nMax Response Time:%f\nMin Response Time:%f\n", findAverage(rand_chunks_time, size),
+                                                                                            findMax(rand_chunks_time, size),
+                                                                                            findMin(rand_chunks_time, size));
+
     FILE* outfile = fopen("output.txt","wb");
 
     fwrite(main_data, sizeof(char), (total), outfile);
