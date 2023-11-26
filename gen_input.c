@@ -80,7 +80,17 @@ int main(int argc, char *argv[]){
     }
 
     srand((unsigned int)10);
-    create_new_random_file(atoi(argv[1]));
+
+    char *endptr;
+    double file_size_gb = strtod(argv[1], &endptr);
+
+    if (endptr == argv[1]) {
+        printf("Not able to convert input size to double.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("Creating file of size: %f\n", file_size_gb);
+    create_new_random_file(file_size_gb);
     create_copies(atoi(argv[2]));
 
     return 0;
