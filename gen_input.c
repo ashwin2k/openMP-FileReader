@@ -4,11 +4,10 @@
 #include <math.h>
 #include <string.h>
 
-#define FILE_SIZE_GB 1
 #define BUFFER_SIZE 1024
 #define FILENAME "random_file.txt"
 
-void create_new_random_file(){
+void create_new_random_file(int file_size_gb){
     FILE *file;
     char buffer[BUFFER_SIZE];
     srand(time(NULL));
@@ -20,7 +19,7 @@ void create_new_random_file(){
         return;
     }
 
-    while (ftell(file) < FILE_SIZE_GB * 1024L* 1024L* 1024L ) {
+    while (ftell(file) < file_size_gb * 1024L* 1024L* 1024L ) {
         for (int i = 0; i < BUFFER_SIZE; i++) {
             buffer[i] = 'A' + rand() % 26;  // Random characters (0 to 255)
         }
@@ -30,7 +29,7 @@ void create_new_random_file(){
 
     fclose(file);
 
-    printf("File created successfully for %dGB.\n",FILE_SIZE_GB);
+    printf("File created successfully for %dGB.\n", file_size_gb);
 
 }
 
@@ -74,15 +73,15 @@ void create_copies(int num){
 }
 
 int main(int argc, char *argv[]){
-    // usage: ./gen_input <num_copies>
-    if(argc!=2){
-        printf("Usage: ./gen_input <num_copies>\n");
+    // usage: ./gen_input <file_size_GB> <num_copies>
+    if(argc!=3){
+        printf("Usage: ./gen_input <file_size_GB> <num_copies>\n");
         return 0;
     }
 
     srand((unsigned int)10);
-    create_new_random_file();
-    create_copies(atoi(argv[1]));
+    create_new_random_file(atoi(argv[1]));
+    create_copies(atoi(argv[2]));
 
     return 0;
 }
