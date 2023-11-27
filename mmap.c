@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
     }
     printf("\n");
 
-    printf("STATS:\nAverage Response Time:%f\nMax Response Time:%f\nMin Response Time:%f\n", findAverage(rand_chunks_time, size), findMax(rand_chunks_time, size), findMin(rand_chunks_time, size));
+    printf("STATS:\nAverage Response Time:%f\nMax Response Time:%f\nMin Response Time:%f\n", findAverage(rand_chunks_time, num_rand_chunks), findMax(rand_chunks_time, num_rand_chunks), findMin(rand_chunks_time, num_rand_chunks));
 
     munmap(file_data, file_size);
     close(fd);
