@@ -6,72 +6,9 @@
 #include <unistd.h>
 #include <omp.h>
 
+#include "common.h"
+
 // mention assumptions in report, that no error checking is done. its assumed input is valid and I/O operations are successful
-
-#define FILE_SIZE_GB 1
-#define BUFFER_SIZE 1024
-#define CHUNK_SIZE 1024
-
-int isNumberPresent(long arr[], int size, long target) {
-    for (int i = 0; i < size; i++) {
-        if (arr[i] == target) {
-            return i;  // Number is present
-        }
-    }
-    return -1;  // Number is not present
-}
-
-double findMax(double arr[], int size) {
-    if (size <= 0) {
-        // Handle empty array or invalid size
-        printf("Invalid array size.\n");
-        return -1;  // Returning a special value to indicate an error
-    }
-
-    double max = arr[0];  // Assume the first element is the maximum
-
-    for (int i = 1; i < size; i++) {
-        if (arr[i] > max) {
-            max = arr[i];  // Update the maximum if a larger element is found
-        }
-    }
-
-    return max;
-}
-
-double findMin(double arr[], int size) {
-    if (size <= 0) {
-        // Handle empty array or invalid size
-        printf("Invalid array size.\n");
-        return -1;  // Returning a special value to indicate an error
-    }
-
-    double min = arr[0];  // Assume the first element is the minimum
-
-    for (int i = 1; i < size; i++) {
-        if (arr[i] < min) {
-            min = arr[i];  // Update the minimum if a smaller element is found
-        }
-    }
-
-    return min;
-}
-
-double findAverage(double arr[], int size) {
-    if (size <= 0) {
-        // Handle empty array or invalid size
-        printf("Invalid array size.\n");
-        return -1.0;  // Returning a special value to indicate an error
-    }
-
-    double sum = 0;
-
-    for (int i = 0; i < size; i++) {
-        sum += arr[i];  // Sum up all the elements in the array
-    }
-
-    return (double)sum / size;  // Calculate the average
-}
 
 int main(int argc, char *argv[]) {
     const char* filepath = argv[1];
