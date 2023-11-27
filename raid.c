@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
        
         long start = i * CHUNK_SIZE;
         int cur_chunk_size = (i == num_chunks - 1) ? file_size - i * CHUNK_SIZE : CHUNK_SIZE;
-        long local_count = readChunk(main_data, file_pointers[omp_get_thread_num()], start, cur_chunk_size);
+        int local_count = readChunk(main_data, file_pointers[omp_get_thread_num()], start, cur_chunk_size);
 
         // experiment 2: records times of specific (randomly selected) chunks
         // int idx = isNumberPresent(rand_chunks, num_rand_chunks, i);
