@@ -11,6 +11,7 @@
 // mention assumptions in report, that no error checking is done. its assumed input is valid and I/O operations are successful
 
 int main(int argc, char *argv[]) {
+    srand((unsigned int)10);
     const char* filepath = argv[1];
     int t = atoi(argv[2]);
     double start, end;

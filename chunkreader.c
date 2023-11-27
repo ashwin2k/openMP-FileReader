@@ -21,26 +21,18 @@ int read_chunk_small(long chunk_number,char* main_data,FILE* file){
 }
 
 int main(int argc, char *argv[]){
+    srand((unsigned int)10);
     const char* filepath = argv[1];
     int t = atoi(argv[2]);
-
-    srand((unsigned int)10);
-    // create_new_random_file();
-    // FILE *file;
+    
     char buffer[1024];
     size_t bytesRead;
-    // Open the file
-    // file = fopen("random_file.txt", "r");
-    // if (file == NULL) {
-    //     perror("Error opening file");
-    //     return EXIT_FAILURE;
-    // }
+    
     long file_size = get_file_size(filepath);
     long num_chunks = get_num_chunks(file_size);
     
     long rand_chunks[10];
     double rand_chunks_time[10];
-
 
     for(int x=0;x<10;x++){
         rand_chunks[x] =(long) rand() % num_chunks + 1;
