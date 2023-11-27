@@ -80,18 +80,20 @@ int main(int argc, char *argv[]) {
     for(long i = 0; i < num_chunks; i++){
 
         int threadID = omp_get_thread_num(); 
-        int cur_chunk_size = (i == num_chunks - 1) ? file_size - i * CHUNK_SIZE : CHUNK_SIZE;       
+        // int cur_chunk_size = (i == num_chunks - 1) ? file_size - i * CHUNK_SIZE : CHUNK_SIZE;       
         long start = i * CHUNK_SIZE;
-        // long end = (i == num_chunks - 1) ? file_size : (i + 1) * CHUNK_SIZE;        
+        long end = (i == num_chunks - 1) ? file_size : (i + 1) * CHUNK_SIZE;
+        int cur_chunk_size = end - start;        
         long local_count = readChunk(file_pointers[threadID], start, cur_chunk_size, main_data);
 
-        // long read_len = read_chunk_small(i, main_data, file_pointers[omp_get_thread_num()]);
+
+
 
         // experiment 2: records times of specific (randomly selected) chunks
-        int idx = isNumberPresent(rand_chunks, num_rand_chunks, i);
-        if(idx!=-1){
-            rand_chunks_time[idx] = omp_get_wtime() - start_time;
-        }
+        // int idx = isNumberPresent(rand_chunks, num_rand_chunks, i);
+        // if(idx!=-1){
+        //     rand_chunks_time[idx] = omp_get_wtime() - start_time;
+        // }
 
         total += local_count;
     }
@@ -112,7 +114,7 @@ int main(int argc, char *argv[]) {
         fclose(file_pointers[i]);
     }
 
-    
+
     FILE* outfile = fopen("output.txt","wb");
     fwrite(main_data, sizeof(char), (total), outfile);
 

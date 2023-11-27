@@ -38,8 +38,6 @@ int main(int argc, char *argv[]) {
         rand_chunks[x] =(long) rand() % num_chunks + 1;
     }
 
-    FILE* outfile = fopen("output.txt","ab");
-
     // start timer
     start_time = omp_get_wtime();
 
@@ -60,10 +58,9 @@ int main(int argc, char *argv[]) {
         int cur_chunk_size = (i == num_chunks - 1) ? file_size - i * CHUNK_SIZE : CHUNK_SIZE;
         
         // for testing correctness
-        fwrite(chunk_start, sizeof(char), cur_chunk_size, outfile);
-        // for (int j = 0; j < cur_chunk_size; j++) { 
-        //     read_counter++;
-        // }
+        for (int j = 0; j < cur_chunk_size; j++) { 
+            read_counter++;
+        }
 
         // for reading specific chunks
         int idx = isNumberPresent(rand_chunks, num_rand_chunks, i);
