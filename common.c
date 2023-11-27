@@ -105,3 +105,9 @@ long get_file_size(const char* filepath){
     }
     return sb.st_size;
 }
+
+int read_chunk(char* main_data, FILE* file, long start, int cur_chunk_size){
+    fseek(file, start, SEEK_SET);
+    size_t bytesRead = fread(main_data + start, 1, cur_chunk_size, file);
+    return bytesRead;
+}

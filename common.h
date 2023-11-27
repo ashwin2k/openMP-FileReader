@@ -20,4 +20,6 @@ long get_num_chunks(long file_size);
 
 long get_file_size(const char* filepath);
 
+int read_chunk(char* main_data, FILE* file, long start, int cur_chunk_size);
+
 #endif

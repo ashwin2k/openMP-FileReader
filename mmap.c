@@ -62,11 +62,10 @@ int main(int argc, char *argv[]) {
             read_counter++;
         }
 
-        // for reading specific chunks
-        int idx = isNumberPresent(rand_chunks, num_rand_chunks, i);
-        if(idx!=-1){
-            rand_chunks_time[idx] = omp_get_wtime() - start_time;
-        }
+        // int idx = isNumberPresent(rand_chunks, num_rand_chunks, i);
+        // if(idx!=-1){
+        //     rand_chunks_time[idx] = omp_get_wtime() - start_time;
+        // }
         
     }
     end_time = omp_get_wtime();

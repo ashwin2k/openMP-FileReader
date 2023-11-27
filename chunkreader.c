@@ -5,18 +5,6 @@
 
 #include "common.h"
 
-// typedef struct{
-//     long start;
-//     long end;
-//     long chunk_size;
-// } Range;
-
-int read_chunk(char* main_data, FILE* file, long start, int cur_chunk_size){
-    fseek(file, start, SEEK_SET);
-    size_t bytesRead = fread(main_data + start, 1, cur_chunk_size, file);
-    return bytesRead;
-}
-
 int main(int argc, char *argv[]){
     // set random seed - fixed across scripts
     srand((unsigned int)10);
@@ -61,12 +49,10 @@ int main(int argc, char *argv[]){
     #pragma omp parallel for num_threads(t) reduction(+:total)
     for(long i = 0; i < num_chunks; i++){
         
-        // experiment 1: read chunk
         long start = i * CHUNK_SIZE;
         int cur_chunk_size = (i == num_chunks - 1) ? file_size - i * CHUNK_SIZE : CHUNK_SIZE;
         long read_len = read_chunk(main_data, file_pointers[omp_get_thread_num()], start, cur_chunk_size);
         
-        // experiment 2: records times of specific (randomly selected) chunks
         // int idx = isNumberPresent(rand_chunks, num_rand_chunks, i);
         // if(idx!=-1){
         //     rand_chunks_time[idx] = omp_get_wtime() - start_time;
