@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
         rand_chunks[x] =(long) rand() % num_chunks + 1;
     }
 
-    double startTime = omp_get_wtime();
+    
     FILE* fileCopy[NUM_THREADS];
     for(int i=0;i<NUM_THREADS;i++){
         char copyFileName[20];
@@ -122,7 +122,7 @@ int main(int argc, char *argv[]) {
                 exit(1);
             }
     }
-            
+    double startTime = omp_get_wtime();
     #pragma omp parallel for num_threads(NUM_THREADS)
     for(long i=0;i<num_chunks;i++){
         int threadID = omp_get_thread_num();
