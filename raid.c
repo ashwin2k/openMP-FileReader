@@ -7,26 +7,18 @@
 
 #define NUM_COPIES 4
 
-long readChunkold(FILE* file, long start, long end) {
-    fseek(file, start, SEEK_SET);
-    long chunkSize = end - start;
-    char* buffer = (char*)malloc(chunkSize);
-    size_t bytesRead = fread(buffer, 1, chunkSize, file);
-    free(buffer);
-    return bytesRead;
-}
+// long readChunkold(FILE* file, long start, long end) {
+//     fseek(file, start, SEEK_SET);
+//     long chunkSize = end - start;
+//     char* buffer = (char*)malloc(chunkSize);
+//     size_t bytesRead = fread(buffer, 1, chunkSize, file);
+//     free(buffer);
+//     return bytesRead;
+// }
 
-long readChunk(FILE* file, long start, int cur_chunk_size, char* main_data) {
+int read_chunk(char* main_data, FILE* file, long start, int cur_chunk_size){
     fseek(file, start, SEEK_SET);
     size_t bytesRead = fread(main_data + start, 1, cur_chunk_size, file);
-    return bytesRead;
-}
-
-int read_chunk_small(long chunk_number, char* main_data, FILE* file){
-    // char *buffer = (char *) malloc(CHUNK_SIZE);
-    size_t bytesRead;
-    bytesRead = fread(main_data+(chunk_number*CHUNK_SIZE), 1, CHUNK_SIZE, file);
-    // memcpy(main_data+(chunk_number*CHUNK_SIZE),buffer,CHUNK_SIZE);
     return bytesRead;
 }
 
@@ -78,16 +70,10 @@ int main(int argc, char *argv[]) {
     // read file chunks in parallel
     #pragma omp parallel for num_threads(t) reduction(+:total)
     for(long i = 0; i < num_chunks; i++){
-
-        int cur_chunk_size = (i == num_chunks - 1) ? file_size - i * CHUNK_SIZE : CHUNK_SIZE;       
+       
         long start = i * CHUNK_SIZE;
-        // long end = (i == num_chunks - 1) ? file_size : (i + 1) * CHUNK_SIZE;
-        // int cur_chunk_size = end - start;
-           
-        long local_count = readChunk(file_pointers[omp_get_thread_num()], start, cur_chunk_size, main_data);
-
-
-
+        int cur_chunk_size = (i == num_chunks - 1) ? file_size - i * CHUNK_SIZE : CHUNK_SIZE;
+        long local_count = readChunk(main_data, file_pointers[omp_get_thread_num()], start, cur_chunk_size);
 
         // experiment 2: records times of specific (randomly selected) chunks
         // int idx = isNumberPresent(rand_chunks, num_rand_chunks, i);
