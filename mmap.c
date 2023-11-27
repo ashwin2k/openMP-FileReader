@@ -11,9 +11,14 @@
 // mention assumptions in report, that no error checking is done. its assumed input is valid and I/O operations are successful
 
 int main(int argc, char *argv[]) {
+    // set random seed - fixed across scripts
     srand((unsigned int)10);
+
+    // get filepath and number of threads from command line arguments
     const char* filepath = argv[1];
     int t = atoi(argv[2]);
+
+    // declare variables
     double start, end;
     int read_counter = 0;
 
@@ -23,6 +28,7 @@ int main(int argc, char *argv[]) {
     printf("file size: %ld\n", file_size);
     printf("num of chunks: %ld\n\n", num_chunks);
 
+    // generate random chunk numbers
     long rand_chunks[10];
     double rand_chunks_time[10];
     for(int x=0;x<10;x++){
