@@ -16,6 +16,14 @@ long readChunk(FILE* file, long start, long end) {
     return bytesRead;
 }
 
+int read_chunk_small(long chunk_number, char* main_data, FILE* file){
+    // char *buffer = (char *) malloc(CHUNK_SIZE);
+    size_t bytesRead;
+    bytesRead = fread(main_data+(chunk_number*CHUNK_SIZE), 1, CHUNK_SIZE, file);
+    // memcpy(main_data+(chunk_number*CHUNK_SIZE),buffer,CHUNK_SIZE);
+    return bytesRead;
+}
+
 int main(int argc, char *argv[]) {
     if (argc != 3) {
         fprintf(stderr, "Usage: %s <filepath> <num_threads>\n", argv[0]);
@@ -49,6 +57,10 @@ int main(int argc, char *argv[]) {
     // start timer
     start_time = omp_get_wtime();
 
+    // allocate memory for file data
+    char *main_data = (char *) malloc(file_size);
+
+    // create file pointers for each thread and corresponding file copies
     FILE* file_pointers[t];
     for(int i = 0; i < t; i++){
         char copyFileName[10];
@@ -56,21 +68,28 @@ int main(int argc, char *argv[]) {
         file_pointers[i] = fopen(copyFileName, "rb");
     }
 
-    #pragma omp parallel for num_threads(t)
+    // read file chunks in parallel
+    #pragma omp parallel for num_threads(t) reduction(+:total)
     for(long i = 0; i < num_chunks; i++){
         int threadID = omp_get_thread_num();
                 
-        // Calculate the start and end positions for this thread
         long start = i * CHUNK_SIZE;
         long end = (i == num_chunks - 1) ? file_size : (i + 1) * CHUNK_SIZE;        
         long local_count = readChunk(file_pointers[threadID], start, end);
+
+        long read_len = read_chunk_small(i, main_data, file_pointers[omp_get_thread_num()]);
+
+        // experiment 2: records times of specific (randomly selected) chunks
         int idx = isNumberPresent(rand_chunks, num_rand_chunks, i);
         if(idx!=-1){
             rand_chunks_time[idx] = omp_get_wtime() - start_time;
         }
+
+        total += read_len;
     }
     end_time = omp_get_wtime();
 
+    printf("Total read: %ld\n", total);
     printf("Execution time: %f\n\n", end_time - start_time);
 
     printf("Rand Chunks selected: ");
