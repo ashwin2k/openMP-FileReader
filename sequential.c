@@ -6,12 +6,15 @@
 #include "common.h"
 
 int main(int argc, char *argv[]){
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <filepath>\n", argv[0]);
+        return 1;
+    }
 
     srand((unsigned int)10);
 
     // get filepath and number of threads from command line arguments
     const char* filepath = argv[1];
-    int t = atoi(argv[2]);
     
     // declare variables
     long total = 0;
@@ -24,32 +27,28 @@ int main(int argc, char *argv[]){
     printf("num of chunks: %ld\n\n", num_chunks);
 
     // generate random chunk numbers for experiment 2
-    int num_rand_chunks = 10;
-    long rand_chunks[num_rand_chunks];
-    double rand_chunks_time[num_rand_chunks];
-    for(int x = 0; x < num_rand_chunks; x++){
-        rand_chunks[x] =(long) rand() % num_chunks + 1;
-    }
+    // int num_rand_chunks = 10;
+    // long rand_chunks[num_rand_chunks];
+    // double rand_chunks_time[num_rand_chunks];
+    // for(int x = 0; x < num_rand_chunks; x++){
+    //     rand_chunks[x] =(long) rand() % num_chunks + 1;
+    // }
     
     // start timer (include malloc, fopen, fread)
     gettimeofday(&start_time, NULL);
-
 
     // allocate memory for file data
     char *main_data = (char *) malloc(file_size);
 
     // create file pointers for each thread
-    FILE *file_pointers[t];
-    for(int i = 0; i < t; i++){
-        file_pointers[i]=fopen(filepath, "r");
-    }
+    FILE *file_pointer = fopen(filepath, "r");
 
     // read file chunks in sequential
     for(long i = 0; i < num_chunks; i++){
         
         long start = i * CHUNK_SIZE;
         int cur_chunk_size = (i == num_chunks - 1) ? file_size - i * CHUNK_SIZE : CHUNK_SIZE;
-        long read_len = read_chunk(main_data, file_pointers[0], start, cur_chunk_size);
+        long read_len = read_chunk(main_data, file_pointer, start, cur_chunk_size);
         
         // int idx = isNumberPresent(rand_chunks, num_rand_chunks, i);
         // if(idx!=-1){
@@ -65,17 +64,16 @@ int main(int argc, char *argv[]){
     printf("Total read: %ld\n", total);
     printf("Execution time: %f\n\n", (double)(double)(end_time.tv_usec - start_time.tv_usec) / 1000000 + (double)(end_time.tv_sec - start_time.tv_sec));
 
-    printf("Rand Chunks selected: ");
-    for (int i = 0; i < num_rand_chunks; i++) {
-        printf("%ld ", rand_chunks[i]);
-    }
-    printf("\n");
+    // printf("Rand Chunks selected: ");
+    // for (int i = 0; i < num_rand_chunks; i++) {
+    //     printf("%ld ", rand_chunks[i]);
+    // }
+    // printf("\n");
 
-    printf("STATS:\nAverage Response Time:%f\nMax Response Time:%f\nMin Response Time:%f\n", findAverage(rand_chunks_time, num_rand_chunks), findMax(rand_chunks_time, num_rand_chunks), findMin(rand_chunks_time, num_rand_chunks));
+    // printf("STATS:\nAverage Response Time:%f\nMax Response Time:%f\nMin Response Time:%f\n", findAverage(rand_chunks_time, num_rand_chunks), findMax(rand_chunks_time, num_rand_chunks), findMin(rand_chunks_time, num_rand_chunks));
 
-    for(int i = 0; i < t; i++){
-        fclose(file_pointers[i]);
-    }
+    fclose(file_pointer);
+    free(main_data);
 
     // for checking correctness
     FILE* outfile = fopen("output.txt","wb");
