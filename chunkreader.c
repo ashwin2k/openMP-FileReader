@@ -5,11 +5,11 @@
 
 #include "common.h"
 
-typedef struct{
-    long start;
-    long end;
-    long chunk_size;
-} Range;
+// typedef struct{
+//     long start;
+//     long end;
+//     long chunk_size;
+// } Range;
 
 int read_chunk_small(long chunk_number,char* main_data,FILE* file){
     // char *buffer = (char *) malloc(CHUNK_SIZE);
@@ -47,25 +47,33 @@ int main(int argc, char *argv[]){
         rand_chunks[x] =(long) rand() % num_chunks + 1;
     }
     
-    // start timer
+    // start timer (include malloc, fopen, fread)
     start_time = omp_get_wtime();
 
+    // allocate memory for file data
     char *main_data = (char *) malloc(file_size);
 
+    // create file pointers for each thread
     FILE *file_pointers[t];
     for(int i = 0; i < t; i++){
         file_pointers[i]=fopen(filepath, "r");
     }
 
-    #pragma omp parallel for reduction(+:total) num_threads(t)
+    // read file chunks in parallel
+    #pragma omp parallel for num_threads(t) reduction(+:total)
     for(long i = 0; i < num_chunks; i++){
-
+        
+        // experiment 1: read chunk
         long read_len = read_chunk_small(i, main_data, file_pointers[omp_get_thread_num()]);
-        int idx = isNumberPresent(rand_chunks, num_rand_chunks, i);
-        if(idx!=-1){
-            rand_chunks_time[idx] = omp_get_wtime() - start_time;
-        }
-        total+=read_len;
+        
+        // experiment 2: records times of specific (randomly selected) chunks
+        // int idx = isNumberPresent(rand_chunks, num_rand_chunks, i);
+        // if(idx!=-1){
+        //     rand_chunks_time[idx] = omp_get_wtime() - start_time;
+        // }
+
+        // for checking correctness
+        total += read_len;
         
     }
     end_time = omp_get_wtime();
@@ -84,6 +92,10 @@ int main(int argc, char *argv[]){
     for(int i = 0; i < t; i++){
         fclose(file_pointers[i]);
     }
+
+    FILE* outfile = fopen("output.txt","wb");
+
+    fwrite(main_data, sizeof(char), (total), outfile);
 
     return 0;
 }
