@@ -79,12 +79,12 @@ int main(int argc, char *argv[]) {
     #pragma omp parallel for num_threads(t) reduction(+:total)
     for(long i = 0; i < num_chunks; i++){
 
-        int cur_chunk_size2 = (i == num_chunks - 1) ? file_size - i * CHUNK_SIZE : CHUNK_SIZE;       
+        int cur_chunk_size = (i == num_chunks - 1) ? file_size - i * CHUNK_SIZE : CHUNK_SIZE;       
         long start = i * CHUNK_SIZE;
-        long end = (i == num_chunks - 1) ? file_size : (i + 1) * CHUNK_SIZE;
-        int cur_chunk_size = end - start;
+        // long end = (i == num_chunks - 1) ? file_size : (i + 1) * CHUNK_SIZE;
+        // int cur_chunk_size = end - start;
            
-        long local_count = readChunk(file_pointers[omp_get_thread_num()], start, cur_chunk_size2, main_data);
+        long local_count = readChunk(file_pointers[omp_get_thread_num()], start, cur_chunk_size, main_data);
 
 
 
