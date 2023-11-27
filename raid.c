@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
     printf("STATS:\nAverage Response Time:%f\nMax Response Time:%f\nMin Response Time:%f\n", findAverage(rand_chunks_time, num_rand_chunks), findMax(rand_chunks_time, num_rand_chunks), findMin(rand_chunks_time, num_rand_chunks));
     
     for(int i = 0; i < t; i++){
-        fclose(filePointers[i]);
+        fclose(file_pointers[i]);
     }
 
     return 0;
