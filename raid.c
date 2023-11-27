@@ -10,7 +10,7 @@
 long readChunk(FILE* file, long start, long end, int cur_chunk_size) {
     fseek(file, start, SEEK_SET);
     // long chunkSize = end - start;
-    char* buffer = (char*)malloc(chunkSize);
+    char* buffer = (char*)malloc(cur_chunk_size);
     size_t bytesRead = fread(buffer, 1, cur_chunk_size, file);
     free(buffer);
     return bytesRead;
