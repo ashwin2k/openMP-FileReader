@@ -17,13 +17,9 @@ int main(int argc, char *argv[]) {
     int read_counter = 0;
 
     // get file size and calculate number of chunks
-    struct stat sb;
-    if(stat(filepath, &sb) == -1){
-        fprintf(stderr, "Error: Failed to get file size.");
-        exit(EXIT_FAILURE);
-    }
-    int num_chunks = sb.st_size / CHUNK_SIZE + (sb.st_size % CHUNK_SIZE == 0 ? 0 : 1);
-    printf("file size: %d\n", (int) sb.st_size);
+    long file_size = get_file_size(filepath);
+    long num_chunks = get_num_chunks(file_size);
+    printf("file size: %d\n", (int) file_size);
     printf("num of chunks: %d\n\n", num_chunks);
 
     long rand_chunks[10];
@@ -41,13 +37,13 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Error: Failed to open input file.");
         exit(EXIT_FAILURE);
     }
-    char* file_data = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+    char* file_data = mmap(NULL, file_size, PROT_READ, MAP_PRIVATE, fd, 0);
 
     // read file chunks in parallel
     #pragma omp parallel for num_threads(t) reduction(+:read_counter)
     for (int i = 0; i < num_chunks; i++) {
         char *chunk_start = file_data + i * CHUNK_SIZE;
-        int cur_chunk_size = (i == num_chunks - 1) ? sb.st_size - i * CHUNK_SIZE : CHUNK_SIZE;
+        int cur_chunk_size = (i == num_chunks - 1) ? file_size - i * CHUNK_SIZE : CHUNK_SIZE;
         
         // for testing correctness
         for (int j = 0; j < cur_chunk_size; j++) {
@@ -76,7 +72,7 @@ int main(int argc, char *argv[]) {
 
     printf("STATS:\nAverage Response Time:%f\nMax Response Time:%f\nMin Response Time:%f\n", findAverage(rand_chunks_time, size), findMax(rand_chunks_time, size), findMin(rand_chunks_time, size));
 
-    munmap(file_data, sb.st_size);
+    munmap(file_data, file_size);
     close(fd);
 
     return 0;

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #include "common.h"
 
@@ -90,4 +91,17 @@ double findAverage(double arr[], int size) {
     }
 
     return (double)sum / size;  // Calculate the average
+}
+
+long get_num_chunks(long file_size){
+    return file_size / CHUNK_SIZE + (file_size % CHUNK_SIZE == 0 ? 0 : 1);
+}
+
+long get_file_size(const char* filepath){
+    struct stat sb;
+    if(stat(filepath, &sb) == -1){
+        fprintf(stderr, "Error: Failed to get file size.");
+        exit(EXIT_FAILURE);
+    }
+    return sb.st_size;
 }

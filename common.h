@@ -16,4 +16,8 @@ double findMin(double arr[], int size);
 
 double findAverage(double arr[], int size);
 
+long get_num_chunks(long file_size);
+
+long get_file_size(const char* filepath);
+
 #endif
