@@ -7,11 +7,11 @@
 
 #define NUM_COPIES 4
 
-long readChunk(FILE* file, long start, long end) {
+long readChunk(FILE* file, long start, long end, int cur_chunk_size) {
     fseek(file, start, SEEK_SET);
-    long chunkSize = end - start;
+    // long chunkSize = end - start;
     char* buffer = (char*)malloc(chunkSize);
-    size_t bytesRead = fread(buffer, 1, chunkSize, file);
+    size_t bytesRead = fread(buffer, 1, cur_chunk_size, file);
     free(buffer);
     return bytesRead;
 }
@@ -73,10 +73,11 @@ int main(int argc, char *argv[]) {
     #pragma omp parallel for num_threads(t) reduction(+:total)
     for(long i = 0; i < num_chunks; i++){
 
-        int threadID = omp_get_thread_num();        
+        int threadID = omp_get_thread_num(); 
+        int cur_chunk_size = (i == num_chunks - 1) ? file_size - i * CHUNK_SIZE : CHUNK_SIZE;       
         long start = i * CHUNK_SIZE;
         long end = (i == num_chunks - 1) ? file_size : (i + 1) * CHUNK_SIZE;        
-        long local_count = readChunk(file_pointers[threadID], start, end);
+        long local_count = readChunk(file_pointers[threadID], start, end, cur_chunk_size   );
 
         // long read_len = read_chunk_small(i, main_data, file_pointers[omp_get_thread_num()]);
 
