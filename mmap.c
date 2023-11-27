@@ -28,22 +28,25 @@ int main(int argc, char *argv[]) {
     printf("file size: %ld\n", file_size);
     printf("num of chunks: %ld\n\n", num_chunks);
 
-    // generate random chunk numbers
-    long rand_chunks[10];
-    double rand_chunks_time[10];
-    for(int x=0;x<10;x++){
+    // generate random chunk numbers for experiment 2
+    int num_rand_chunks = 10;
+    long rand_chunks[num_rand_chunks];
+    double rand_chunks_time[num_rand_chunks];
+    for(int x = 0; x < num_rand_chunks; x++){
         rand_chunks[x] =(long) rand() % num_chunks + 1;
     }
 
-    // start timer
-    start = omp_get_wtime();
-
-    // open file and memory map it
+    // open file
     int fd = open(filepath, O_RDONLY);
     if (fd == -1) {
         fprintf(stderr, "Error: Failed to open input file.");
         exit(EXIT_FAILURE);
     }
+
+    // start timer
+    start = omp_get_wtime();
+
+    // memory map file
     char* file_data = mmap(NULL, file_size, PROT_READ, MAP_PRIVATE, fd, 0);
 
     // read file chunks in parallel
@@ -58,7 +61,7 @@ int main(int argc, char *argv[]) {
         }
 
         // for reading specific chunks
-        int idx = isNumberPresent(rand_chunks, sizeof(rand_chunks) / sizeof(rand_chunks[0]), i);
+        int idx = isNumberPresent(rand_chunks, num_rand_chunks, i);
         if(idx!=-1){
             rand_chunks_time[idx] = omp_get_wtime() - start;
         }
@@ -69,10 +72,8 @@ int main(int argc, char *argv[]) {
     printf("Total read: %d\n", read_counter);
     printf("Execution time: %f\n\n", end-start);
 
-
     printf("Rand Chunks selected: ");
-    int size = sizeof(rand_chunks_time) / sizeof(rand_chunks_time[0]);
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < num_rand_chunks; i++) {
         printf("%ld ", rand_chunks[i]);
     }
     printf("\n");

@@ -32,6 +32,7 @@ int main(int argc, char *argv[]){
     char buffer[1024];
     size_t bytesRead;
     long total = 0;
+    double start, end;
     
     // get file size and calculate number of chunks
     long file_size = get_file_size(filepath);
@@ -39,10 +40,11 @@ int main(int argc, char *argv[]){
     printf("file size: %ld\n", file_size);
     printf("num of chunks: %ld\n\n", num_chunks);
 
-    // generate random chunk numbers
-    long rand_chunks[10];
-    double rand_chunks_time[10];
-    for(int x=0;x<10;x++){
+    // generate random chunk numbers for experiment 2
+    int num_rand_chunks = 10;
+    long rand_chunks[num_rand_chunks];
+    double rand_chunks_time[num_rand_chunks];
+    for(int x = 0; x < num_rand_chunks; x++){
         rand_chunks[x] =(long) rand() % num_chunks + 1;
     }
     
@@ -50,38 +52,37 @@ int main(int argc, char *argv[]){
 
     FILE *filePointers[t];
     for(int i = 0; i < t; i++){
-        filePointers[i]=fopen("random_file.txt", "r");
+        filePointers[i]=fopen(filepath, "r");
     }
 
-    double start = omp_get_wtime();
+    start = omp_get_wtime();
     #pragma omp parallel for reduction(+:total) num_threads(t)
     for(long i = 0; i < num_chunks; i++){
 
         long read_len = read_chunk_small(i, main_data, filePointers[omp_get_thread_num()]);
-        int idx = isNumberPresent(rand_chunks, sizeof(rand_chunks) / sizeof(rand_chunks[0]), i);
+        int idx = isNumberPresent(rand_chunks, num_rand_chunks, i);
         if(idx!=-1){
             rand_chunks_time[idx] = omp_get_wtime() - start;
         }
         total+=read_len;
         
     }
+    end = omp_get_wtime();
 
-    int size = sizeof(rand_chunks_time) / sizeof(rand_chunks_time[0]);
-    printf("Total Read - %ld\n",total);
+    printf("Total read: %ld\n", total);
+    printf("Execution time: %f\n\n", end-start);
 
     printf("Rand Chunks selected: ");
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < num_rand_chunks; i++) {
         printf("%ld ", rand_chunks[i]);
     }
     printf("\n");
 
-    printf("STATS: Average Response Time:%f\nMax Response Time:%f\nMin Response Time:%f\n", findAverage(rand_chunks_time, size),
-                                                                                            findMax(rand_chunks_time, size),
-                                                                                            findMin(rand_chunks_time, size));
+    printf("STATS:\nAverage Response Time:%f\nMax Response Time:%f\nMin Response Time:%f\n", findAverage(rand_chunks_time, size), findMax(rand_chunks_time, size), findMin(rand_chunks_time, size));
 
-    FILE* outfile = fopen("output.txt","wb");
-
-    fwrite(main_data, sizeof(char), (total), outfile);
+    for(int i = 0; i < t; i++){
+        fclose(filePointers[i]);
+    }
 
     return 0;
 }
