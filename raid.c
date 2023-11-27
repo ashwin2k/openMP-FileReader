@@ -72,13 +72,13 @@ int main(int argc, char *argv[]) {
     // read file chunks in parallel
     #pragma omp parallel for num_threads(t) reduction(+:total)
     for(long i = 0; i < num_chunks; i++){
-        int threadID = omp_get_thread_num();
-                
+
+        int threadID = omp_get_thread_num();        
         long start = i * CHUNK_SIZE;
         long end = (i == num_chunks - 1) ? file_size : (i + 1) * CHUNK_SIZE;        
         long local_count = readChunk(file_pointers[threadID], start, end);
 
-        long read_len = read_chunk_small(i, main_data, file_pointers[omp_get_thread_num()]);
+        // long read_len = read_chunk_small(i, main_data, file_pointers[omp_get_thread_num()]);
 
         // experiment 2: records times of specific (randomly selected) chunks
         int idx = isNumberPresent(rand_chunks, num_rand_chunks, i);
@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
             rand_chunks_time[idx] = omp_get_wtime() - start_time;
         }
 
-        total += read_len;
+        total += local_count;
     }
     end_time = omp_get_wtime();
 
