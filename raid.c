@@ -39,6 +39,7 @@ int main(int argc, char *argv[]) {
 
     // declare variables
     double start_time, end_time;
+    long total = 0;
 
     // get file size and calculate number of chunks
     long file_size = get_file_size(filepath);
