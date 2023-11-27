@@ -49,18 +49,18 @@ int main(int argc, char *argv[]){
     
     // start timer
     start_time = omp_get_wtime();
-    
+
     char *main_data = (char *) malloc(file_size);
 
-    FILE *filePointers[t];
+    FILE *file_pointers[t];
     for(int i = 0; i < t; i++){
-        filePointers[i]=fopen(filepath, "r");
+        file_pointers[i]=fopen(filepath, "r");
     }
 
     #pragma omp parallel for reduction(+:total) num_threads(t)
     for(long i = 0; i < num_chunks; i++){
 
-        long read_len = read_chunk_small(i, main_data, filePointers[omp_get_thread_num()]);
+        long read_len = read_chunk_small(i, main_data, file_pointers[omp_get_thread_num()]);
         int idx = isNumberPresent(rand_chunks, num_rand_chunks, i);
         if(idx!=-1){
             rand_chunks_time[idx] = omp_get_wtime() - start_time;
@@ -82,7 +82,7 @@ int main(int argc, char *argv[]){
     printf("STATS:\nAverage Response Time:%f\nMax Response Time:%f\nMin Response Time:%f\n", findAverage(rand_chunks_time, num_rand_chunks), findMax(rand_chunks_time, num_rand_chunks), findMin(rand_chunks_time, num_rand_chunks));
 
     for(int i = 0; i < t; i++){
-        fclose(filePointers[i]);
+        fclose(file_pointers[i]);
     }
 
     return 0;

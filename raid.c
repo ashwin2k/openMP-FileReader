@@ -49,11 +49,11 @@ int main(int argc, char *argv[]) {
     // start timer
     start_time = omp_get_wtime();
 
-    FILE* fileCopy[t];
+    FILE* file_pointers[t];
     for(int i = 0; i < t; i++){
         char copyFileName[10];
         sprintf(copyFileName, "copy%d.txt", i % NUM_COPIES);
-        fileCopy[i] = fopen(copyFileName, "rb");
+        file_pointers[i] = fopen(copyFileName, "rb");
     }
 
     #pragma omp parallel for num_threads(t)
@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
         // Calculate the start and end positions for this thread
         long start = i * CHUNK_SIZE;
         long end = (i == num_chunks - 1) ? file_size : (i + 1) * CHUNK_SIZE;        
-        long local_count = readChunk(fileCopy[threadID], start, end);
+        long local_count = readChunk(file_pointers[threadID], start, end);
         int idx = isNumberPresent(rand_chunks, num_rand_chunks, i);
         if(idx!=-1){
             rand_chunks_time[idx] = omp_get_wtime() - start_time;
