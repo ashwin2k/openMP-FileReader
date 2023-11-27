@@ -83,12 +83,8 @@ int main(int argc, char *argv[]) {
         long start = i * CHUNK_SIZE;
         long end = (i == num_chunks - 1) ? file_size : (i + 1) * CHUNK_SIZE;
         int cur_chunk_size = end - start;
-        if (cur_chunk_size2 != cur_chunk_size){
-            printf("ERROR: cur_chunk_size2 != cur_chunk_size\n");
-            printf("cur_chunk_size2: %d\n", cur_chunk_size2);
-            printf("cur_chunk_size: %d\n", cur_chunk_size);
-        }    
-        long local_count = readChunk(file_pointers[omp_get_thread_num()], start, cur_chunk_size, main_data);
+           
+        long local_count = readChunk(file_pointers[omp_get_thread_num()], start, cur_chunk_size2, main_data);
 
 
 
