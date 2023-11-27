@@ -7,12 +7,18 @@
 
 #define NUM_COPIES 4
 
-long readChunk(FILE* file, long start, long end, int cur_chunk_size) {
+long readChunkold(FILE* file, long start, long end) {
     fseek(file, start, SEEK_SET);
-    // long chunkSize = end - start;
-    char* buffer = (char*)malloc(cur_chunk_size);
-    size_t bytesRead = fread(buffer, 1, cur_chunk_size, file);
+    long chunkSize = end - start;
+    char* buffer = (char*)malloc(chunkSize);
+    size_t bytesRead = fread(buffer, 1, chunkSize, file);
     free(buffer);
+    return bytesRead;
+}
+
+long readChunk(FILE* file, long start, int cur_chunk_size, char* main_data) {
+    fseek(file, start, SEEK_SET);
+    size_t bytesRead = fread(main_data + start, 1, cur_chunk_size, file);
     return bytesRead;
 }
 
@@ -76,8 +82,8 @@ int main(int argc, char *argv[]) {
         int threadID = omp_get_thread_num(); 
         int cur_chunk_size = (i == num_chunks - 1) ? file_size - i * CHUNK_SIZE : CHUNK_SIZE;       
         long start = i * CHUNK_SIZE;
-        long end = (i == num_chunks - 1) ? file_size : (i + 1) * CHUNK_SIZE;        
-        long local_count = readChunk(file_pointers[threadID], start, end, cur_chunk_size   );
+        // long end = (i == num_chunks - 1) ? file_size : (i + 1) * CHUNK_SIZE;        
+        long local_count = readChunk(file_pointers[threadID], start, cur_chunk_size, main_data);
 
         // long read_len = read_chunk_small(i, main_data, file_pointers[omp_get_thread_num()]);
 
