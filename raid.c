@@ -112,5 +112,9 @@ int main(int argc, char *argv[]) {
         fclose(file_pointers[i]);
     }
 
+    
+    FILE* outfile = fopen("output.txt","wb");
+    fwrite(main_data, sizeof(char), (total), outfile);
+
     return 0;
 }
