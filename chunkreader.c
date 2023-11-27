@@ -11,10 +11,10 @@
 //     long chunk_size;
 // } Range;
 
-int read_chunk_small(long chunk_number,char* main_data,FILE* file){
+int read_chunk_small(long chunk_number,char* main_data,FILE* file, int cur_chunk_size){
     // char *buffer = (char *) malloc(CHUNK_SIZE);
     size_t bytesRead;
-    bytesRead = fread(main_data+(chunk_number*CHUNK_SIZE), 1, CHUNK_SIZE, file);
+    bytesRead = fread(main_data+(chunk_number*CHUNK_SIZE), 1, cur_chunk_size, file);
     // memcpy(main_data+(chunk_number*CHUNK_SIZE),buffer,CHUNK_SIZE);
     return bytesRead;
 }
@@ -64,7 +64,8 @@ int main(int argc, char *argv[]){
     for(long i = 0; i < num_chunks; i++){
         
         // experiment 1: read chunk
-        long read_len = read_chunk_small(i, main_data, file_pointers[omp_get_thread_num()]);
+        int cur_chunk_size = (i == num_chunks - 1) ? file_size - i * CHUNK_SIZE : CHUNK_SIZE;
+        long read_len = read_chunk_small(i, main_data, file_pointers[omp_get_thread_num()], cur_chunk_size);
         
         // experiment 2: records times of specific (randomly selected) chunks
         // int idx = isNumberPresent(rand_chunks, num_rand_chunks, i);
