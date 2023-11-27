@@ -44,12 +44,30 @@ int main(int argc, char *argv[]) {
     // allocate memory for file data
     char *main_data = (char *) malloc(file_size);
 
+    // array to check for valid copies
+    int validFile[NUM_COPIES];
+    for(int i=0;i<NUM_COPIES;i++){
+        validFile[i]=1;
+    }
+    int cpointer=0;
     // create file pointers for each thread and corresponding file copies
     FILE* file_pointers[t];
-    for(int i = 0; i < t; i++){
+    for(int i=0;i<t;i++){
+        if(validFile[cpointer]==0){
+            cpointer=(cpointer+1)%NUM_COPIES;
+            i--;
+            continue;
+        }
         char copyFileName[10];
-        sprintf(copyFileName, "copy%d.txt", i % NUM_COPIES);
+        sprintf(copyFileName, "copy%d.txt", cpointer);
         file_pointers[i] = fopen(copyFileName, "rb");
+        if(file_pointers[i]==NULL){
+            validFile[i]=0;
+            cpointer=(cpointer+1)%NUM_COPIES;
+            i--;
+            continue;
+        }
+        cpointer=(cpointer+1)%NUM_COPIES;
     }
 
     // read file chunks in parallel
@@ -89,6 +107,5 @@ int main(int argc, char *argv[]) {
 
     FILE* outfile = fopen("output.txt","wb");
     fwrite(main_data, sizeof(char), (total), outfile);
-
     return 0;
 }
