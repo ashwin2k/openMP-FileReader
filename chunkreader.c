@@ -14,8 +14,6 @@ int main(int argc, char *argv[]){
     int t = atoi(argv[2]);
     
     // declare variables
-    char buffer[1024];
-    size_t bytesRead;
     long total = 0;
     double start_time, end_time;
     
