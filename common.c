@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <math.h>
 #include <string.h>
 
 #include "common.h"
@@ -30,10 +29,6 @@ void create_new_random_file(){
 
     printf("File created successfully for %dGB.\n",FILE_SIZE_GB);
 
-}
-
-long get_num_chunks(long file_size){
-    return ceil(file_size/CHUNK_SIZE);
 }
 
 int isNumberPresent(long arr[], int size, long target) {

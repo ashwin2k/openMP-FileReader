@@ -8,8 +8,6 @@
 
 void create_new_random_file();
 
-long get_num_chunks(long file_size);
-
 int isNumberPresent(long arr[], int size, long target);
 
 double findMax(double arr[], int size);
