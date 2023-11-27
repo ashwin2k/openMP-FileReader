@@ -1,16 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/mman.h>
-#include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <omp.h>
 
 #include "common.h"
 
-// mention assumptions in report, that no error checking is done. its assumed input is valid and I/O operations are successful
-
 int main(int argc, char *argv[]) {
+    if (argc != 3) {
+        fprintf(stderr, "Usage: %s <filepath> <num_threads>\n", argv[0]);
+        return 1;
+    }
+
     // set random seed - fixed across scripts
     srand((unsigned int)10);
 
@@ -19,7 +21,7 @@ int main(int argc, char *argv[]) {
     int t = atoi(argv[2]);
 
     // declare variables
-    double start, end;
+    double start_time, end_time;
     int read_counter = 0;
 
     // get file size and calculate number of chunks
@@ -36,15 +38,15 @@ int main(int argc, char *argv[]) {
         rand_chunks[x] =(long) rand() % num_chunks + 1;
     }
 
+    // start timer
+    start_time = omp_get_wtime();
+    
     // open file
     int fd = open(filepath, O_RDONLY);
     if (fd == -1) {
         fprintf(stderr, "Error: Failed to open input file.");
         exit(EXIT_FAILURE);
     }
-
-    // start timer
-    start = omp_get_wtime();
 
     // memory map file
     char* file_data = mmap(NULL, file_size, PROT_READ, MAP_PRIVATE, fd, 0);
@@ -63,14 +65,14 @@ int main(int argc, char *argv[]) {
         // for reading specific chunks
         int idx = isNumberPresent(rand_chunks, num_rand_chunks, i);
         if(idx!=-1){
-            rand_chunks_time[idx] = omp_get_wtime() - start;
+            rand_chunks_time[idx] = omp_get_wtime() - start_time;
         }
         
     }
-    end = omp_get_wtime();
+    end_time = omp_get_wtime();
 
     printf("Total read: %d\n", read_counter);
-    printf("Execution time: %f\n\n", end-start);
+    printf("Execution time: %f\n\n", end_time - start_time);
 
     printf("Rand Chunks selected: ");
     for (int i = 0; i < num_rand_chunks; i++) {

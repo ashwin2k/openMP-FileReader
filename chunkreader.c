@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include <omp.h>
 #include <string.h>
 
@@ -32,7 +31,7 @@ int main(int argc, char *argv[]){
     char buffer[1024];
     size_t bytesRead;
     long total = 0;
-    double start, end;
+    double start_time, end_time;
     
     // get file size and calculate number of chunks
     long file_size = get_file_size(filepath);
@@ -48,6 +47,9 @@ int main(int argc, char *argv[]){
         rand_chunks[x] =(long) rand() % num_chunks + 1;
     }
     
+    // start timer
+    start_time = omp_get_wtime();
+    
     char *main_data = (char *) malloc(file_size);
 
     FILE *filePointers[t];
@@ -55,22 +57,21 @@ int main(int argc, char *argv[]){
         filePointers[i]=fopen(filepath, "r");
     }
 
-    start = omp_get_wtime();
     #pragma omp parallel for reduction(+:total) num_threads(t)
     for(long i = 0; i < num_chunks; i++){
 
         long read_len = read_chunk_small(i, main_data, filePointers[omp_get_thread_num()]);
         int idx = isNumberPresent(rand_chunks, num_rand_chunks, i);
         if(idx!=-1){
-            rand_chunks_time[idx] = omp_get_wtime() - start;
+            rand_chunks_time[idx] = omp_get_wtime() - start_time;
         }
         total+=read_len;
         
     }
-    end = omp_get_wtime();
+    end_time = omp_get_wtime();
 
     printf("Total read: %ld\n", total);
-    printf("Execution time: %f\n\n", end-start);
+    printf("Execution time: %f\n\n", end_time - start_time);
 
     printf("Rand Chunks selected: ");
     for (int i = 0; i < num_rand_chunks; i++) {

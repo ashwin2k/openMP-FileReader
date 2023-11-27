@@ -1,21 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <omp.h>
-#include<time.h>
-#include<math.h>
+#include <string.h>
 
-#define num_copies 4
-#define FILE_PATH "random_file.txt"
-#define CHUNK_SIZE 1024
+#include "common.h"
 
-int isNumberPresent(long arr[], int size, long target) {
-    for (int i = 0; i < size; i++) {
-        if (arr[i] == target) {
-            return i;  // Number is present
-        }
-    }
-    return -1;  // Number is not present
-}
+#define NUM_COPIES 4
 
 long readChunk(FILE* file, long start, long end) {
     fseek(file, start, SEEK_SET);
@@ -26,135 +16,74 @@ long readChunk(FILE* file, long start, long end) {
     return bytesRead;
 }
 
-double findAverage(double arr[], int size) {
-    if (size <= 0) {
-        // Handle empty array or invalid size
-        printf("Invalid array size.\n");
-        return -1.0;  // Returning a special value to indicate an error
-    }
-
-    double sum = 0;
-
-    for (int i = 0; i < size; i++) {
-        sum += arr[i];  // Sum up all the elements in the array
-    }
-
-    return (double)sum / size;  // Calculate the average
-}
-
-double findMin(double arr[], int size) {
-    if (size <= 0) {
-        // Handle empty array or invalid size
-        printf("Invalid array size.\n");
-        return -1;  // Returning a special value to indicate an error
-    }
-
-    double min = arr[0];  // Assume the first element is the minimum
-
-    for (int i = 1; i < size; i++) {
-        if (arr[i] < min) {
-            min = arr[i];  // Update the minimum if a smaller element is found
-        }
-    }
-
-    return min;
-}
-
-double findMax(double arr[], int size) {
-    if (size <= 0) {
-        // Handle empty array or invalid size
-        printf("Invalid array size.\n");
-        return -1;  // Returning a special value to indicate an error
-    }
-
-    double max = arr[0];  // Assume the first element is the maximum
-
-    for (int i = 1; i < size; i++) {
-        if (arr[i] > max) {
-            max = arr[i];  // Update the maximum if a larger element is found
-        }
-    }
-
-    return max;
-}
-
-
 int main(int argc, char *argv[]) {
-    srand((unsigned int)10);
-    if (argc != 2) {
-        fprintf(stderr, "Usage: %s <num_threads>\n", argv[0]);
+    if (argc != 3) {
+        fprintf(stderr, "Usage: %s <filepath> <num_threads>\n", argv[0]);
         return 1;
     }
 
-    int NUM_THREADS = atoi(argv[1]);
-    // Open the original file for reading
-    FILE* originalFile = fopen(FILE_PATH, "rb");
-    if (originalFile == NULL) {
-        perror("Error opening original file");
-        return 1;
-    }
-
-    // Get the file size
-    fseek(originalFile, 0, SEEK_END);
-    long fileSize = ftell(originalFile);
-    fseek(originalFile, 0, SEEK_SET);
-    long num_chunks = ceil(fileSize/CHUNK_SIZE);
-
+    // set random seed - fixed across scripts
     srand((unsigned int)10);
-    
-    long rand_chunks[10];
-    double rand_chunks_time[10];
-    
-    for(int x=0;x<10;x++){
+
+    // get filepath and number of threads from command line arguments
+    const char* filepath = argv[1];
+    int t = atoi(argv[2]);
+
+    // declare variables
+    double start_time, end_time;
+
+    // get file size and calculate number of chunks
+    long file_size = get_file_size(filepath);
+    long num_chunks = get_num_chunks(file_size);
+    printf("file size: %ld\n", file_size);
+    printf("num of chunks: %ld\n\n", num_chunks);
+
+    // generate random chunk numbers for experiment 2
+    int num_rand_chunks = 10;
+    long rand_chunks[num_rand_chunks];
+    double rand_chunks_time[num_rand_chunks];
+    for(int x = 0; x < num_rand_chunks; x++){
         rand_chunks[x] =(long) rand() % num_chunks + 1;
     }
 
-    
-    FILE* fileCopy[NUM_THREADS];
-    for(int i=0;i<NUM_THREADS;i++){
-        char copyFileName[20];
-        sprintf(copyFileName, "copy%d.txt", i%num_copies);
+    // start timer
+    start_time = omp_get_wtime();
+
+    FILE* fileCopy[t];
+    for(int i = 0; i < t; i++){
+        char copyFileName[10];
+        sprintf(copyFileName, "copy%d.txt", i % NUM_COPIES);
         fileCopy[i] = fopen(copyFileName, "rb");
-        if (fileCopy[i] == NULL) {
-                perror("Error opening file copy");
-                // Handle error and clean up resources
-                fclose(originalFile);
-                exit(1);
-            }
     }
-    double startTime = omp_get_wtime();
-    #pragma omp parallel for num_threads(NUM_THREADS)
-    for(long i=0;i<num_chunks;i++){
+
+    #pragma omp parallel for num_threads(t)
+    for(long i = 0; i < num_chunks; i++){
         int threadID = omp_get_thread_num();
-        
-        // Open existing file copies for reading
-        
+                
         // Calculate the start and end positions for this thread
         long start = i * CHUNK_SIZE;
-        long end = (i == num_chunks - 1) ? fileSize : (i + 1) * CHUNK_SIZE;        
+        long end = (i == num_chunks - 1) ? file_size : (i + 1) * CHUNK_SIZE;        
         long local_count = readChunk(fileCopy[threadID], start, end);
-        int idx = isNumberPresent(rand_chunks, sizeof(rand_chunks) / sizeof(rand_chunks[0]), i);
+        int idx = isNumberPresent(rand_chunks, num_rand_chunks, i);
         if(idx!=-1){
-            rand_chunks_time[idx] = omp_get_wtime() - startTime;
+            rand_chunks_time[idx] = omp_get_wtime() - start_time;
         }
     }
-    double endTime = omp_get_wtime();
-    double elapsedTime = endTime - startTime;
-    int size = sizeof(rand_chunks_time) / sizeof(rand_chunks_time[0]);
-    printf("random chunks selected\n");
-    for (int i = 0; i < size; i++) {
+    end_time = omp_get_wtime();
+
+    printf("Execution time: %f\n\n", end_time - start_time);
+
+    printf("Rand Chunks selected: ");
+    for (int i = 0; i < num_rand_chunks; i++) {
         printf("%ld ", rand_chunks[i]);
     }
-    printf("\nTime taken to read the chunk\n");
-    for(int i=0;i<size;i++){
-        printf("%f ", rand_chunks_time[i]);
-    }
     printf("\n");
-    printf("STATS: Average Response Time:%f\nMax Response Time:%f\nMin Response Time:%f\n", findAverage(rand_chunks_time, size),
-                                                                                            findMax(rand_chunks_time, size),
-                                                                                            findMin(rand_chunks_time, size));
-    // Close the original file
-    fclose(originalFile);
-    printf("Total time taken: %f seconds\n", elapsedTime);
+
+    printf("STATS:\nAverage Response Time:%f\nMax Response Time:%f\nMin Response Time:%f\n", findAverage(rand_chunks_time, num_rand_chunks), findMax(rand_chunks_time, num_rand_chunks), findMin(rand_chunks_time, num_rand_chunks));
+    
+    for(int i = 0; i < t; i++){
+        fclose(filePointers[i]);
+    }
+
     return 0;
 }
