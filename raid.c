@@ -8,7 +8,7 @@
 // #define NUM_COPIES 4
 
 int main(int argc, char *argv[]) {
-    if (argc != 3) {
+    if (argc != 4) {
         fprintf(stderr, "Usage: %s <filepath> <num_threads> <num_copies>\n", argv[0]);
         return 1;
     }
