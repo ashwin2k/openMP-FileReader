@@ -28,8 +28,8 @@ int main(int argc, char *argv[]) {
     // get file size and calculate number of chunks
     long file_size = get_file_size(filepath);
     long num_chunks = get_num_chunks(file_size);
-    printf("file size: %ld\n", file_size);
-    printf("num of chunks: %ld\n\n", num_chunks);
+    // printf("file size: %ld\n", file_size);
+    // printf("num of chunks: %ld\n\n", num_chunks);
 
     // generate random chunk numbers for experiment 2
     // int num_rand_chunks = 10;
