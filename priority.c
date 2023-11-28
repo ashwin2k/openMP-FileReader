@@ -4,7 +4,7 @@
 #include <omp.h>
 
 #define NUM_CHUNKS 100000
-#define NUM_PRIORITIES 100 // Assuming a maximum of 10 priorities
+#define NUM_PRIORITIES 100
 #define NUM_THREADS 16
 
 // Chunk struct
@@ -188,26 +188,6 @@ int main()
 
     double start_time = omp_get_wtime();
 
-    //     // Process each priority level
-    //     for (int priority = 0; priority < NUM_PRIORITIES; priority++)
-    //     {
-    // #pragma omp parallel
-    //         {
-    //             while (!pq_is_empty(&pq[priority]))
-    //             {
-    // #pragma omp critical
-    //                 {
-    //                     Chunk chunk = pq_pop(&pq[priority]);
-
-    //                     if (chunk.chunkID != -1)
-    //                     {
-    //                         processChunk(chunk.buffer, chunk.bytesRead, chunk.priority, chunk.chunkID);
-    //                         free(chunk.buffer);
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
     // Sequentially process each priority level
     for (int i = 0; i < NUM_PRIORITIES; i++)
     {
