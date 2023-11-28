@@ -48,7 +48,8 @@ int main(int argc, char *argv[]){
         
         long start = i * CHUNK_SIZE;
         int cur_chunk_size = (i == num_chunks - 1) ? file_size - i * CHUNK_SIZE : CHUNK_SIZE;
-        long read_len = read_chunk(main_data, file_pointer, start, cur_chunk_size);
+        // long local_count = 
+        read_chunk(main_data, file_pointer, start, cur_chunk_size);
         
         // int idx = isNumberPresent(rand_chunks, num_rand_chunks, i);
         // if(idx!=-1){
@@ -56,7 +57,7 @@ int main(int argc, char *argv[]){
         // }
 
         // for checking correctness
-        // total += read_len;
+        // total += local_count;
         
     }
     gettimeofday(&end_time, NULL);
