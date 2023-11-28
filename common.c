@@ -6,32 +6,6 @@
 
 #include "common.h"
 
-void create_new_random_file(){
-    FILE *file;
-    char buffer[BUFFER_SIZE];
-    srand(time(NULL));
-
-    file = fopen("random_file.txt", "wb");
-
-    if (file == NULL) {
-        perror("Error opening file");
-        return;
-    }
-
-    while (ftell(file) < FILE_SIZE_GB * 1024L* 1024L* 1024L ) {
-        for (int i = 0; i < BUFFER_SIZE; i++) {
-            buffer[i] = 'A' + rand() % 26;  // Random characters (0 to 255)
-        }
-
-        fwrite(buffer, sizeof(char), BUFFER_SIZE, file);
-    }
-
-    fclose(file);
-
-    printf("File created successfully for %dGB.\n",FILE_SIZE_GB);
-
-}
-
 int isNumberPresent(long arr[], int size, long target) {
     for (int i = 0; i < size; i++) {
         if (arr[i] == target) {

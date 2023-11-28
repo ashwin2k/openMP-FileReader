@@ -11,13 +11,13 @@ int main(int argc, char *argv[]){
         return 1;
     }
 
-    srand((unsigned int)10);
+    // srand((unsigned int)10);
 
     // get filepath and number of threads from command line arguments
     const char* filepath = argv[1];
     
     // declare variables
-    long total = 0;
+    // long total = 0;
     struct timeval start_time, end_time;
     
     // get file size and calculate number of chunks
@@ -56,12 +56,14 @@ int main(int argc, char *argv[]){
         // }
 
         // for checking correctness
-        total += read_len;
+        // total += read_len;
         
     }
     gettimeofday(&end_time, NULL);
 
-    printf("Total read: %ld\n", total);
+    // for checking correctness
+    // printf("Total read: %ld\n", total);
+
     printf("Execution time: %f\n\n", (double)(double)(end_time.tv_usec - start_time.tv_usec) / 1000000 + (double)(end_time.tv_sec - start_time.tv_sec));
 
     // printf("Rand Chunks selected: ");
@@ -76,8 +78,8 @@ int main(int argc, char *argv[]){
     free(main_data);
 
     // for checking correctness
-    FILE* outfile = fopen("output.txt","wb");
-    fwrite(main_data, sizeof(char), (total), outfile);
+    // FILE* outfile = fopen("output.txt","wb");
+    // fwrite(main_data, sizeof(char), (total), outfile);
 
     return 0;
 
