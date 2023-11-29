@@ -53,14 +53,6 @@ int main(int argc, char *argv[]){
         //long local_count = 
         read_chunk(main_data, file_pointers[omp_get_thread_num()], start, cur_chunk_size);
         
-        // int idx = isNumberPresent(rand_chunks, num_rand_chunks, i);
-        // if(idx!=-1){
-        //     rand_chunks_time[idx] = omp_get_wtime() - start_time;
-        // }
-
-        // for checking correctness
-        // total += local_count;
-        
     }
     end_time = omp_get_wtime();
 
