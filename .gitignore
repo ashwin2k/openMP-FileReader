@@ -1,1 +1,6 @@
 *.txt
+chunkreader
+mmap
+gen_input
+raid
+sequential
