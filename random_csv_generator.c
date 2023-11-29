@@ -8,7 +8,7 @@
 int main()
 {
     FILE *file;
-    file = fopen("/Users/sathvikabhagyalakshmimahesh/Desktop/random_file.csv", "w");
+    file = fopen("random_file.csv", "w");
     if (file == NULL)
     {
         perror("Error opening file");
