@@ -31,13 +31,6 @@ int main(int argc, char *argv[]) {
     // printf("file size: %ld\n", file_size);
     // printf("num of chunks: %ld\n\n", num_chunks);
 
-    // generate random chunk numbers for experiment 2
-    // int num_rand_chunks = 10;
-    // long rand_chunks[num_rand_chunks];
-    // double rand_chunks_time[num_rand_chunks];
-    // for(int x = 0; x < num_rand_chunks; x++){
-    //     rand_chunks[x] =(long) rand() % num_chunks + 1;
-    // }
 
     // start timer
     start_time = omp_get_wtime();
@@ -81,13 +74,6 @@ int main(int argc, char *argv[]) {
         // int local_count = 
         read_chunk(main_data, file_pointers[omp_get_thread_num()], start, cur_chunk_size);
 
-        // int idx = isNumberPresent(rand_chunks, num_rand_chunks, i);
-        // if(idx!=-1){
-        //     rand_chunks_time[idx] = omp_get_wtime() - start_time;
-        // }
-
-        // for checking correctness
-        // total += local_count;
     }
     end_time = omp_get_wtime();
 
@@ -95,14 +81,6 @@ int main(int argc, char *argv[]) {
     // printf("Total read: %ld\n", total);
 
     printf("Execution time: %f\n\n", end_time - start_time);
-
-    // printf("Rand Chunks selected: ");
-    // for (int i = 0; i < num_rand_chunks; i++) {
-    //     printf("%ld ", rand_chunks[i]);
-    // }
-    // printf("\n");
-
-    // printf("STATS:\nAverage Response Time:%f\nMax Response Time:%f\nMin Response Time:%f\n", findAverage(rand_chunks_time, num_rand_chunks), findMax(rand_chunks_time, num_rand_chunks), findMin(rand_chunks_time, num_rand_chunks));
     
     for(int i = 0; i < t; i++){
         fclose(file_pointers[i]);
