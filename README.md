@@ -12,7 +12,7 @@ Repository for CSCI-GA.3033-034 Multicore Processors: Architecture and Programmi
 |gen_input.c | Source code for memory mapped reading of a file | `gcc gen_input.c common.c -o gen_input` |`./gen_input <file_size_GB> <num_copies>`|
 |diffchecker.py | File for comparing file differences | --- |`python diffchecker.py`|
 |random_csv_generator.c | Input file for Loading based on priority | `gcc -o random_csv_generator random_csv_generator.c` |`./random_csv_generator`|
-|priority.c | Source code for Loading based on priority, the parameters #define NUM_CHUNKS <value>, NUM_PRIORITIES <value>, NUM_THREADS <value> can be changed according to requirements | `gcc −Wall -std=c99 −fopenmp −o priority priority.c` |`./priority`|
+|priority.c | Source code for Loading based on priority, the parameters #define NUM_CHUNKS "value", NUM_PRIORITIES "value", NUM_THREADS "value" can be changed according to requirements | `gcc −Wall -std=c99 −fopenmp −o priority priority.c` |`./priority`|
 ## Other files
 
 | FileName | Description |
